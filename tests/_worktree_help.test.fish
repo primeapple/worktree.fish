@@ -1,6 +1,6 @@
 # RUN: %fish %s
 
-worktree
+worktree help
 # CHECK: Usage: worktree <command>
 # CHECK: 
 # CHECK: Available commands:
