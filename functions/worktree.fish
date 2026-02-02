@@ -36,6 +36,16 @@ function __worktree_check_on_default_branch --argument-names default_branch
     return 0
 end
 
+function __worktree_check_in_worktree_structure
+    if git worktree list | grep --quiet "+main "
+        and git worktree list | grep --quiet "+review "
+        and git worktree list | grep --quiet "+work "
+        return 0
+    end
+
+    return 1
+end
+
 function _worktree_init
     # Check if in git repository
     __worktree_check_git_repo
@@ -47,6 +57,12 @@ function _worktree_init
     # Check for uncommitted changes
     __worktree_check_clean_working_tree
     or return 1
+
+    # Check if already in a worktree structure
+    if __worktree_check_in_worktree_structure
+        echo "Error: Already in a worktree structure" >&2
+        return 1
+    end
 
     # Get default branch
     set -l default_branch (__worktree_get_default_branch)
