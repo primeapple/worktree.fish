@@ -5,14 +5,12 @@ source (dirname (status filename))/test_helpers.fish
 ### Setup
 set -l tmpdir (setup_test_repo main)
 
-
 ### TEST cannot init if not in git repo
 cd $tmpdir
 worktree init
 # CHECKERR: Error: Not in a git repository
 echo $status
 # CHECK: 1
-
 
 ### TEST cannot init if working directory / staging area is dirty
 cd $tmpdir/repository
@@ -22,7 +20,6 @@ worktree init
 echo $status
 # CHECK: 1
 rm thing
-
 
 ### TEST basic init
 worktree init
@@ -35,10 +32,8 @@ worktree init
 echo $status
 # CHECK: 0
 
-
 ### TEST cd into the main worktree
 pwd # CHECK: {{.*}}/repository/repository+main
-
 
 ### TEST have created 3 worktrees in expected locations
 git worktree list
@@ -46,20 +41,17 @@ git worktree list
 # CHECK: {{.*}}/repository/repository+review{{.*}} [parking/review]
 # CHECK: {{.*}}/repository/repository+work{{.*}} [parking/work]
 
-
 ### TEST have checked out the 3 default branches in the worktrees
 git branch -a
 # CHECK: * main
 # CHECK: + parking/review
 # CHECK: + parking/work
 
-
 ### TEST cannot init if already in worktree structure
 worktree init
 # CHECKERR: Error: Already in a worktree structure
 echo $status
 # CHECK: 1
-
 
 ### Teardown
 cleanup_test_repo $tmpdir

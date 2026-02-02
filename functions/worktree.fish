@@ -43,11 +43,11 @@ function __worktree_check_in_worktree_structure
         return 0
     end
 
+    echo "Error: No worktree structure found" >&2
     return 1
 end
 
 function _worktree_init
-    # Check if in git repository
     __worktree_check_git_repo
     or return 1
 
@@ -59,7 +59,7 @@ function _worktree_init
     or return 1
 
     # Check if already in a worktree structure
-    if __worktree_check_in_worktree_structure
+    if __worktree_check_in_worktree_structure 2>/dev/null
         echo "Error: Already in a worktree structure" >&2
         return 1
     end
@@ -115,30 +115,51 @@ function _worktree_create
     exit 1
 end
 
-function _worktree_switch
-    exit 1
+function _worktree_switch --argument-names location
+    __worktree_check_git_repo
+    or return 1
+
+    __worktree_check_in_worktree_structure
+    or return 1
+
+    switch $location
+        case main
+            cd (git worktree list | grep '+main' | awk '{print $1}')
+            return 0
+        case review
+            cd (git worktree list | grep '+review' | awk '{print $1}')
+            return 0
+        case work
+            cd (git worktree list | grep '+work' | awk '{print $1}')
+            return 0
+    end
+
+    # TODO open worktrees in fzf/zf/...
 end
 
 function _worktree_help
     echo "Usage: worktree <command>"
     echo ""
     echo "Available commands:"
-    echo "  init      Initialize worktree configuration"
-    echo "  create    Create a new worktree"
-    echo "  main      Switch to main worktree"
-    echo "  review    Switch to review worktree"
-    echo "  work      Switch to work worktree"
-    echo "  help      Show this help message"
+    echo "  init           Initialize worktree configuration"
+    echo "  create         Create a new worktree"
+    echo "  switch         Switch between worktrees"
+    echo "  switch main    Switch to main worktree"
+    echo "  switch review  Switch to main worktree"
+    echo "  switch work    Switch to main worktree"
+    echo "  review         Switch to review worktree"
+    echo "  work           Switch to work worktree"
+    echo "  help           Show this help message"
 end
 
-function worktree --argument-names subcommand --description "Manage git worktrees"
-    switch $subcommand
+function worktree --argument-names subcmd1 subcmd2 --description "Manage git worktrees"
+    switch $subcmd1
         case init
             _worktree_init
         case create
             _worktree_create
-        case main review work
-            _worktree_switch $subcommand
+        case switch
+            _worktree_switch $subcmd2
         case '*'
             _worktree_help
     end

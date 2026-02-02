@@ -49,8 +49,8 @@ worktree init
 # Create a new branch in a worktree, this will directly jump into there
 worktree create branch1
 
-# Checkout the work one again, this will switch the worktree 
-worktree work # or `worktree main` or `worktree review`
+# Switch to the work one again, this will switch the worktree 
+worktree switch work # or `worktree switch main` or `worktree switch review` or just `worktree switch`
 
 # Create a new branch in the `work` worktree
 git switch --create chore-branch2
@@ -58,6 +58,6 @@ git switch --create chore-branch2
 worktree create
 ```
 
-There are many more commands, like `worktree clean` or `worktree park`. Run `worktree` to see help output (or have a look into the completions).
+There are many more commands, like `worktree clean` or `worktree park`. Run `worktree` to see help output (or take a look into the completions).
 
 Let's have fun :)
