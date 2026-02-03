@@ -7,18 +7,14 @@ set -l tmpdir (setup_test_repo main)
 
 ### TEST cannot init if not in git repo
 cd $tmpdir
-worktree init
-# CHECKERR: Error: Not in a git repository
-echo $status
-# CHECK: 1
+worktree init # CHECKERR: Error: Not in a git repository
+echo $status # CHECK: 1
 
 ### TEST cannot init if working directory / staging area is dirty
 cd $tmpdir/repository
 touch thing
-worktree init
-# CHECKERR: Error: You have uncommitted changes
-echo $status
-# CHECK: 1
+worktree init # CHECKERR: Error: You have uncommitted changes
+echo $status # CHECK: 1
 rm thing
 
 ### TEST basic init
@@ -29,8 +25,7 @@ worktree init
 # CHECK:     ├── repository+main (main branch)
 # CHECK:     ├── repository+work (parking/work branch)
 # CHECK:     ├── repository+review (parking/review branch)
-echo $status
-# CHECK: 0
+echo $status # CHECK: 0
 
 ### TEST cd into the main worktree
 pwd # CHECK: {{.*}}/repository/repository+main
@@ -48,10 +43,8 @@ git branch -a
 # CHECK: + parking/work
 
 ### TEST cannot init if already in worktree structure
-worktree init
-# CHECKERR: Error: Already in a worktree structure
-echo $status
-# CHECK: 1
+worktree init # CHECKERR: Error: Already in a worktree structure
+echo $status # CHECK: 1
 
 ### Teardown
 cleanup_test_repo $tmpdir

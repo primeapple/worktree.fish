@@ -7,13 +7,11 @@ set -l tmpdir (setup_test_repo main)
 
 ### TEST cannot switch if not in git repo
 cd $tmpdir
-worktree switch work
-# CHECKERR: Error: Not in a git repository
+worktree switch work # CHECKERR: Error: Not in a git repository
 
 ### TEST cannot switch if no worktree structure found
 cd $tmpdir/repository
-worktree switch work
-# CHECKERR: Error: No worktree structure found
+worktree switch work # CHECKERR: Error: No worktree structure found
 
 cd $tmpdir/repository
 worktree init >/dev/null

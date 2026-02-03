@@ -19,6 +19,10 @@ function __worktree_get_default_branch
     end
 end
 
+function __worktree_get_git_root
+    git rev-parse --show-toplevel
+end
+
 function __worktree_check_clean_working_tree
     if test -n "$(git status --porcelain)"
         echo "Error: You have uncommitted changes" >&2
@@ -47,11 +51,19 @@ function __worktree_check_in_worktree_structure
     return 1
 end
 
+function __worktree_get_current_worktree_path
+    git rev-parse --show-toplevel | git worktree list | grep (__worktree_get_git_root) | awk '{print $1}'
+end
+
+function __worktree_get_current_worktree_name_suffix
+    basename (__worktree_get_current_worktree_path) | awk -F+ '{print $NF}'
+end
+
 function _worktree_init
     __worktree_check_git_repo
     or return 1
 
-    set -l git_root (git rev-parse --show-toplevel)
+    set -l git_root (__worktree_get_git_root)
     cd "$git_root"
 
     # Check for uncommitted changes
@@ -115,6 +127,42 @@ function _worktree_create
     exit 1
 end
 
+function _worktree_park
+    __worktree_check_git_repo
+    or return 1
+
+    __worktree_check_in_worktree_structure
+    or return 1
+
+    __worktree_check_clean_working_tree
+    or return 1
+
+    set -l worktree_suffix (__worktree_get_current_worktree_name_suffix)
+    if not contains $worktree_suffix main review work
+        echo "Error: Can only park the default worktrees (main review work)" >&2
+        return 1
+    end
+
+    set -l worktree_suffix (__worktree_get_current_worktree_name_suffix)
+    set -l default_branch (__worktree_get_default_branch)
+    switch $worktree_suffix
+        case main
+            git switch (__worktree_get_default_branch) 2>/dev/null
+        case review
+            git switch parking/$worktree_suffix 2>/dev/null
+        case work
+            git switch parking/$worktree_suffix 2>/dev/null
+    end
+
+    if git ls-remote --tags >/dev/null 2>/dev/null
+        git fetch >/dev/null 2>/dev/null
+        git reset --hard origin/$default_branch
+        echo "Info: Reset to origin/$default_branch"
+    else
+        echo "Warning: No remote found, not resetting to latest remote default branch" >&2
+    end
+end
+
 function _worktree_switch --argument-names location
     __worktree_check_git_repo
     or return 1
@@ -141,23 +189,25 @@ function _worktree_help
     echo "Usage: worktree <command>"
     echo ""
     echo "Available commands:"
-    echo "  init           Initialize worktree configuration"
     echo "  create         Create a new worktree"
+    echo "  help           Show this help message"
+    echo "  init           Initialize worktree configuration"
+    echo "  park           Resets to default branch on the special worktrees and updates them"
+    echo "  review         Switch to review worktree"
     echo "  switch         Switch between worktrees"
     echo "  switch main    Switch to main worktree"
-    echo "  switch review  Switch to main worktree"
-    echo "  switch work    Switch to main worktree"
-    echo "  review         Switch to review worktree"
-    echo "  work           Switch to work worktree"
-    echo "  help           Show this help message"
+    echo "  switch review  Switch to review worktree"
+    echo "  switch work    Switch to work worktree"
 end
 
 function worktree --argument-names subcmd1 subcmd2 --description "Manage git worktrees"
     switch $subcmd1
-        case init
-            _worktree_init
         case create
             _worktree_create
+        case init
+            _worktree_init
+        case park
+            _worktree_park
         case switch
             _worktree_switch $subcmd2
         case '*'
