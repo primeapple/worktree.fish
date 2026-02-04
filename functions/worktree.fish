@@ -56,7 +56,7 @@ function __worktree_get_current_worktree_path
 end
 
 function __worktree_get_worktree_name_suffix --argument-names path
-    if not set -q path
+    if not test -n "$path"
         exit 2
     end
     basename $path | awk -F+ '{print $NF}'
@@ -126,11 +126,42 @@ function _worktree_init
     echo "    ├── $original_name+review (parking/review branch)"
 end
 
-function _worktree_create
-    exit 1
+function _worktree_create --argument-names target_branch
+    __worktree_check_git_repo
+    or return 1
+
+    __worktree_check_in_worktree_structure
+    or return 1
+
+    __worktree_check_clean_working_tree
+    or return 1
+
+    if test -n "$target_branch"
+        if not git rev-parse --verify "$target_branch" >/dev/null 2>&1
+            git branch $target_branch
+        end
+    else
+        set target_branch (git branch --show-current)
+
+        set worktree_suffix (__worktree_get_worktree_name_suffix (__worktree_get_current_worktree_path))
+        if not contains $worktree_suffix main review work
+            echo "Error: Can only create worktree from current branch from default worktrees (main review work)" >&2
+            return 1
+        else if contains $target_branch (__worktree_get_default_branch) parking/review parking/work
+            echo "Error: Can not create worktree from parking branches ($(__worktree_get_default_branch) parking/review parking/work)" >&2
+            return 1
+        end
+
+        _worktree_park 1
+    end
+
+    cd (__worktree_get_git_root)
+    set path_to_create "../repository+$(string replace --all "/" "%2F" $target_branch)"
+    git worktree add --quiet $path_to_create $target_branch
+    cd $path_to_create
 end
 
-function _worktree_park
+function _worktree_park --argument-names reset_to_origin
     __worktree_check_git_repo
     or return 1
 
@@ -154,6 +185,10 @@ function _worktree_park
             git switch parking/$worktree_suffix 2>/dev/null
         case work
             git switch parking/$worktree_suffix 2>/dev/null
+    end
+
+    if test "$reset_to_origin" -ne 0
+        return 0
     end
 
     if git ls-remote --tags >/dev/null 2>/dev/null
@@ -232,11 +267,11 @@ function worktree --argument-names subcmd1 subcmd2 --description "Manage git wor
         case clean
             _worktree_clean
         case create
-            _worktree_create
+            _worktree_create $subcmd2
         case init
             _worktree_init
         case park
-            _worktree_park
+            _worktree_park 0
         case switch
             _worktree_switch $subcmd2
         case '*'
