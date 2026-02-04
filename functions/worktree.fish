@@ -59,7 +59,9 @@ function __worktree_get_worktree_name_suffix --argument-names path
     if not test -n "$path"
         exit 2
     end
-    basename $path | awk -F+ '{print $NF}'
+    # TODO Here is the problem
+    set repo_name (basename (dirname (__worktree_get_git_root)))
+    string replace "$reponame+" "" (basename $path)
 end
 
 function _worktree_init

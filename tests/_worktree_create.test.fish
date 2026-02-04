@@ -46,6 +46,12 @@ echo $status # CHECK: 0
 pwd # CHECK: {{.*}}/repository/repository+fix%2Fslash%2Fbranch
 git branch --show-current # CHECK: fix/slash/branch
 
+### TEST create worktree with plus
+worktree create plus+branch+work
+echo $status # CHECK: 0
+pwd # CHECK: {{.*}}/repository/repository+fix+plus+branch
+git branch --show-current # CHECK: fix+plus+branch
+
 ### TEST cannot create without given branch name if there already is a worktree for the current branch
 cd $tmpdir/repository/repository+new-branch
 worktree create # CHECKERR: Error: Can only create worktree from current branch from default worktrees (main review work)
@@ -67,6 +73,7 @@ echo $status # CHECK: 1
 git worktree list
 # CHECK: {{.*}}/repository/repository+main{{.*}} [main]
 # CHECK: {{.*}}/repository/repository+fix%2Fslash%2Fbranch{{.*}} [fix/slash/branch]
+# CHECK: {{.*}}/repository/repository+fix+plus+branch{{.*}} [fix+plus+branch]
 # CHECK: {{.*}}/repository/repository+new-branch{{.*}} [new-branch]
 # CHECK: {{.*}}/repository/repository+review{{.*}} [parking/review]
 # CHECK: {{.*}}/repository/repository+very-new-branch{{.*}} [very-new-branch]

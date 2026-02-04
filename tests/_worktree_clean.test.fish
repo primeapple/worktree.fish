@@ -16,23 +16,23 @@ worktree clean # CHECKERR: Error: No worktree structure found
 worktree init >/dev/null
 pwd # CHECK: {{.*}}/repository/repository+main
 
-git worktree add --quiet -b other-clean ../repository+other-clean
-git worktree add --quiet -b other-dirty ../repository+other-dirty
-cd $tmpdir/repository/repository+other-dirty
+worktree create other/clean
+cd $tmpdir/repository/repository+main
+worktree create other-dirty
 touch dirty-file
 
 ### Verify worktrees exist before clean
 git worktree list
 # CHECK: {{.*}}repository/repository+main{{.*}}
-# CHECK: {{.*}}repository/repository+other-clean{{.*}}
+# CHECK: {{.*}}repository/repository+other%2Fclean{{.*}}
 # CHECK: {{.*}}repository/repository+other-dirty{{.*}}
 # CHECK: {{.*}}repository/repository+review{{.*}}
 # CHECK: {{.*}}repository/repository+work{{.*}}
 
 ### TEST clean command removes only clean worktrees
-cd $tmpdir/repository/repository+other-clean
+cd $tmpdir/repository/repository+other%2Fclean
 worktree clean
-# CHECK: Info: Removing worktree {{.*}}/repository/repository+other-clean
+# CHECK: Info: Removing worktree {{.*}}/repository/repository+other%2Fclean
 # CHECKERR: Warning: Can not remove dirty worktree {{.*}}/repository/repository+other-dirty
 
 pwd # CHECK: {{.*}}/repository/repository+work
