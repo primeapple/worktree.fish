@@ -4,6 +4,7 @@ worktree
 # CHECK: Usage: worktree <command>
 # CHECK: 
 # CHECK: Available commands:
+# CHECK:   clean          Remove all clean worktrees except main, review, and work
 # CHECK:   create         Create a new worktree
 # CHECK:   help           Show this help message
 # CHECK:   init           Initialize worktree configuration
