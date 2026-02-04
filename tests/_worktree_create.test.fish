@@ -29,35 +29,47 @@ worktree create new-branch
 echo $status # CHECK: 0
 pwd # CHECK: {{.*}}/repository/repository+new-branch
 git branch --show-current # CHECK: new-branch
+worktree switch work
+pwd # CHECK: {{.*}}/repository/repository+work
+git branch --show-current # CHECK: parking/work
 
 ### TEST create from current branch name
-git switch --create fix/slash-branch
+git switch --quiet --create very-new-branch
 worktree create
 echo $status # CHECK: 0
-pwd # CHECK: {{.*}}/repository/repository%2Fnew-branch
-git branch --show-current # CHECK: fix/slash-branch
+pwd # CHECK: {{.*}}/repository/repository+very-new-branch
+git branch --show-current # CHECK: very-new-branch
+
+### TEST create worktree with slash
+worktree create fix/slash/branch
+echo $status # CHECK: 0
+pwd # CHECK: {{.*}}/repository/repository+fix%2Fslash%2Fbranch
+git branch --show-current # CHECK: fix/slash/branch
 
 ### TEST cannot create without given branch name if there already is a worktree for the current branch
 cd $tmpdir/repository/repository+new-branch
-worktree create # CHECKERR: Error: Worktree for branch new-branch already exists
+worktree create # CHECKERR: Error: Can only create worktree from current branch from default worktrees (main review work)
 echo $status # CHECK: 1
 
 worktree switch main
-worktree create # CHECKERR: Error: Worktree for branch main already exists
+worktree create # CHECKERR: Error: Can not create worktree from parking branches (main parking/review parking/work)
 echo $status # CHECK: 1
 
 worktree switch review
-worktree create # CHECKERR: Error: Worktree for branch parking/review already exists
+worktree create # CHECKERR: Error: Can not create worktree from parking branches (main parking/review parking/work)
 echo $status # CHECK: 1
 
 worktree switch work
-worktree create # CHECKERR: Error: Worktree for branch parking/work already exists
+worktree create # CHECKERR: Error: Can not create worktree from parking branches (main parking/review parking/work)
 echo $status # CHECK: 1
 
-### TEST have created 5 worktrees in expected locations
+### TEST have created 6 worktrees in expected locations with expected branches
 git worktree list
 # CHECK: {{.*}}/repository/repository+main{{.*}} [main]
+# CHECK: {{.*}}/repository/repository+fix%2Fslash%2Fbranch{{.*}} [fix/slash/branch]
+# CHECK: {{.*}}/repository/repository+new-branch{{.*}} [new-branch]
 # CHECK: {{.*}}/repository/repository+review{{.*}} [parking/review]
+# CHECK: {{.*}}/repository/repository+very-new-branch{{.*}} [very-new-branch]
 # CHECK: {{.*}}/repository/repository+work{{.*}} [parking/work]
 
 ### Teardown
