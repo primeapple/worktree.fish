@@ -23,8 +23,7 @@ echo $status # CHECK: 1
 rm thing
 
 ### TEST cannot park any other worktrees than the default ones
-git worktree add --quiet -b other-worktree-branch ../repository+other-worktree-branch
-cd ../repository+other-worktree-branch
+worktree create other-worktree-branch
 worktree park # CHECKERR: Error: Can only park the default worktrees (main review work)
 
 ### TEST park should checkout default branch

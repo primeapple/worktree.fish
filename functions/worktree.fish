@@ -19,8 +19,13 @@ function __worktree_get_default_branch
     end
 end
 
-function __worktree_get_git_root
+function __worktree_get_git_root --argument-names path
+    if not test -n "$path"
+        exit 2
+    end
+    pushd "$path"
     git rev-parse --show-toplevel
+    popd
 end
 
 function __worktree_check_clean_working_tree
@@ -52,21 +57,29 @@ function __worktree_check_in_worktree_structure
 end
 
 function __worktree_get_current_worktree_path
-    git rev-parse --show-toplevel | git worktree list | grep (__worktree_get_git_root) | awk '{print $1}'
+    git rev-parse --show-toplevel | git worktree list | grep (__worktree_get_git_root (pwd)) | awk '{print $1}'
+end
+
+function __worktree_get_repo_name --argument-names path
+    if not test -n "$path"
+        exit 2
+    end
+    basename (dirname (__worktree_get_git_root $path))
 end
 
 function __worktree_get_worktree_name_suffix --argument-names path
     if not test -n "$path"
         exit 2
     end
-    basename $path | awk -F+ '{print $NF}'
+    set repo_name (__worktree_get_repo_name $path)
+    string replace "$repo_name+" "" (basename $path)
 end
 
 function _worktree_init
     __worktree_check_git_repo
     or return 1
 
-    set -l git_root (__worktree_get_git_root)
+    set -l git_root (__worktree_get_git_root (pwd))
     cd "$git_root"
 
     # Check for uncommitted changes
@@ -155,7 +168,7 @@ function _worktree_create --argument-names target_branch
         _worktree_park 1
     end
 
-    cd (__worktree_get_git_root)
+    cd (__worktree_get_git_root (pwd))
     set path_to_create "../repository+$(string replace --all "/" "%2F" $target_branch)"
     git worktree add --quiet $path_to_create $target_branch
     cd $path_to_create
@@ -231,16 +244,8 @@ function _worktree_switch --argument-names location
     __worktree_check_in_worktree_structure
     or return 1
 
-    switch $location
-        case main
-            cd (git worktree list | grep '+main' | awk '{print $1}')
-            return 0
-        case review
-            cd (git worktree list | grep '+review' | awk '{print $1}')
-            return 0
-        case work
-            cd (git worktree list | grep '+work' | awk '{print $1}')
-            return 0
+    if contains $location main review work
+        cd "$(dirname (__worktree_get_current_worktree_path))/$(__worktree_get_repo_name (pwd))+$location"
     end
 
     # TODO open worktrees in fzf/zf/...
