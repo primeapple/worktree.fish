@@ -176,8 +176,11 @@ function _worktree_clean
             continue
         end
 
-        # cd into the worktree in subshell and check if it's clean
-        if test (cd "$worktree_path" && __worktree_check_clean_working_tree 2>/dev/null && echo 0 || echo 1) -eq 0
+        pushd "$worktree_path"
+        set is_clean (__worktree_check_clean_working_tree 2>/dev/null && echo 0 || echo 1)
+        popd
+
+        if test $is_clean -eq 0
             echo "Info: Removing worktree $worktree_path"
             git worktree remove "$worktree_path"
         else

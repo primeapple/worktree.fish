@@ -29,28 +29,29 @@ git worktree list
 # CHECK: {{.*}}repository/repository+review{{.*}}
 # CHECK: {{.*}}repository/repository+work{{.*}}
 
-## TEST clean command removes only clean worktrees
+### TEST clean command removes only clean worktrees
 cd $tmpdir/repository/repository+other-clean
 worktree clean
 # CHECK: Info: Removing worktree {{.*}}/repository/repository+other-clean
 # CHECKERR: Warning: Can not remove dirty worktree {{.*}}/repository/repository+other-dirty
 
-# pwd # CHECK: {{.*}}/repository/repository+work
-# git worktree list
-# # CHECK: repository+main
-# # CHECK: repository+other-dirty
-# # CHECK: repository+review
-# # CHECK: repository+work
-#
-# ### TEST should cd into main worktree if current one is removed
-# rm dirty-file
-# worktree clean # CHECK: Info: Removing worktree {{.*}}/repository/repository+other-dirty
-#
-# pwd # CHECK: {{.*}}/repository/repository+work
-# git worktree list
-# # CHECK: repository+main
-# # CHECK: repository+review
-# # CHECK: repository+work
+pwd # CHECK: {{.*}}/repository/repository+work
+git worktree list
+# CHECK: {{.*}}repository+main{{.*}}
+# CHECK: {{.*}}repository+other-dirty{{.*}}
+# CHECK: {{.*}}repository+review{{.*}}
+# CHECK: {{.*}}repository+work{{.*}}
+
+### TEST should cd into main worktree if current one is removed
+cd $tmpdir/repository/repository+other-dirty
+rm dirty-file
+worktree clean # CHECK: Info: Removing worktree {{.*}}/repository/repository+other-dirty
+
+pwd # CHECK: {{.*}}/repository/repository+work
+git worktree list
+# CHECK: {{.*}}repository+main{{.*}}
+# CHECK: {{.*}}repository+review{{.*}}
+# CHECK: {{.*}}repository+work{{.*}}
 
 ### Teardown
 cleanup_test_repo $tmpdir
