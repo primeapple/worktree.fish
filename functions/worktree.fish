@@ -126,8 +126,26 @@ function _worktree_init
     echo "    ├── $original_name+review (parking/review branch)"
 end
 
-function _worktree_create
-    exit 1
+function _worktree_create --argument-names target_branch
+    __worktree_check_git_repo
+    or return 1
+
+    __worktree_check_in_worktree_structure
+    or return 1
+
+    __worktree_check_clean_working_tree
+    or return 1
+
+    set path_to_create
+    if set -q target_branch
+        set path_to_create ../repository+$target_branch
+    else
+
+    end
+    cd (__worktree_get_git_root)
+    # TODO check if branch exists already
+    # TODO make sure to properly encode the branch
+    git worktree add -b $target_branch path_to_create
 end
 
 function _worktree_park
