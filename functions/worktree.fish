@@ -60,11 +60,18 @@ function __worktree_get_current_worktree_path
     git rev-parse --show-toplevel | git worktree list | grep (__worktree_get_git_root (pwd)) | awk '{print $1}'
 end
 
+function __worktree_get_repo_name --argument-names path
+    if not test -n "$path"
+        exit 2
+    end
+    basename (dirname (__worktree_get_git_root $path))
+end
+
 function __worktree_get_worktree_name_suffix --argument-names path
     if not test -n "$path"
         exit 2
     end
-    set repo_name (basename (dirname (__worktree_get_git_root $path)))
+    set repo_name (__worktree_get_repo_name $path)
     string replace "$repo_name+" "" (basename $path)
 end
 
@@ -237,16 +244,8 @@ function _worktree_switch --argument-names location
     __worktree_check_in_worktree_structure
     or return 1
 
-    switch $location
-        case main
-            cd (git worktree list | grep '+main' | awk '{print $1}')
-            return 0
-        case review
-            cd (git worktree list | grep '+review' | awk '{print $1}')
-            return 0
-        case work
-            cd (git worktree list | grep '+work' | awk '{print $1}')
-            return 0
+    if contains $location main review work
+        cd "$(dirname (__worktree_get_current_worktree_path))/$(__worktree_get_repo_name (pwd))+$location"
     end
 
     # TODO open worktrees in fzf/zf/...
