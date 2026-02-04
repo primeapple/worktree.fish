@@ -13,7 +13,6 @@ worktree switch work # CHECKERR: Error: Not in a git repository
 cd $tmpdir/repository
 worktree switch work # CHECKERR: Error: No worktree structure found
 
-cd $tmpdir/repository
 worktree init >/dev/null
 pwd # CHECK: {{.*}}/repository/repository+main
 

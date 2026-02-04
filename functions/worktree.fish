@@ -55,8 +55,11 @@ function __worktree_get_current_worktree_path
     git rev-parse --show-toplevel | git worktree list | grep (__worktree_get_git_root) | awk '{print $1}'
 end
 
-function __worktree_get_current_worktree_name_suffix
-    basename (__worktree_get_current_worktree_path) | awk -F+ '{print $NF}'
+function __worktree_get_worktree_name_suffix --argument-names path
+    if not set -q path
+        exit 2
+    end
+    basename $path | awk -F+ '{print $NF}'
 end
 
 function _worktree_init
@@ -137,13 +140,12 @@ function _worktree_park
     __worktree_check_clean_working_tree
     or return 1
 
-    set -l worktree_suffix (__worktree_get_current_worktree_name_suffix)
+    set -l worktree_suffix (__worktree_get_worktree_name_suffix (__worktree_get_current_worktree_path))
     if not contains $worktree_suffix main review work
         echo "Error: Can only park the default worktrees (main review work)" >&2
         return 1
     end
 
-    set -l worktree_suffix (__worktree_get_current_worktree_name_suffix)
     set -l default_branch (__worktree_get_default_branch)
     switch $worktree_suffix
         case main
@@ -160,6 +162,27 @@ function _worktree_park
         echo "Info: Reset to origin/$default_branch"
     else
         echo "Warning: No remote found, not resetting to latest remote default branch" >&2
+    end
+end
+
+function _worktree_clean
+    _worktree_switch work
+    or return 1
+
+    git worktree prune
+
+    for worktree_path in (git worktree list | awk '{print $1}')
+        if contains (__worktree_get_worktree_name_suffix $worktree_path) main review work
+            continue
+        end
+
+        # cd into the worktree in subshell and check if it's clean
+        if test (cd "$worktree_path" && __worktree_check_clean_working_tree 2>/dev/null && echo 0 || echo 1) -eq 0
+            echo "Info: Removing worktree $worktree_path"
+            git worktree remove "$worktree_path"
+        else
+            echo "Warning: Can not remove dirty worktree $worktree_path" >&2
+        end
     end
 end
 
@@ -189,6 +212,7 @@ function _worktree_help
     echo "Usage: worktree <command>"
     echo ""
     echo "Available commands:"
+    echo "  clean          Remove all clean worktrees except main, review, and work"
     echo "  create         Create a new worktree"
     echo "  help           Show this help message"
     echo "  init           Initialize worktree configuration"
@@ -202,6 +226,8 @@ end
 
 function worktree --argument-names subcmd1 subcmd2 --description "Manage git worktrees"
     switch $subcmd1
+        case clean
+            _worktree_clean
         case create
             _worktree_create
         case init
