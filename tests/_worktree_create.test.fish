@@ -49,8 +49,8 @@ git branch --show-current # CHECK: fix/slash/branch
 ### TEST create worktree with plus
 worktree create plus+branch+work
 echo $status # CHECK: 0
-pwd # CHECK: {{.*}}/repository/repository+fix+plus+branch
-git branch --show-current # CHECK: fix+plus+branch
+pwd # CHECK: {{.*}}/repository/repository+plus+branch+work
+git branch --show-current # CHECK: plus+branch+work
 
 ### TEST cannot create without given branch name if there already is a worktree for the current branch
 cd $tmpdir/repository/repository+new-branch
@@ -73,8 +73,8 @@ echo $status # CHECK: 1
 git worktree list
 # CHECK: {{.*}}/repository/repository+main{{.*}} [main]
 # CHECK: {{.*}}/repository/repository+fix%2Fslash%2Fbranch{{.*}} [fix/slash/branch]
-# CHECK: {{.*}}/repository/repository+fix+plus+branch{{.*}} [fix+plus+branch]
 # CHECK: {{.*}}/repository/repository+new-branch{{.*}} [new-branch]
+# CHECK: {{.*}}/repository/repository+plus+branch+work{{.*}} [plus+branch+work]
 # CHECK: {{.*}}/repository/repository+review{{.*}} [parking/review]
 # CHECK: {{.*}}/repository/repository+very-new-branch{{.*}} [very-new-branch]
 # CHECK: {{.*}}/repository/repository+work{{.*}} [parking/work]
