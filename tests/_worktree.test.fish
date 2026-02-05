@@ -4,12 +4,12 @@ worktree
 # CHECK: Usage: worktree <command>
 # CHECK: 
 # CHECK: Available commands:
-# CHECK:   clean          Remove all clean worktrees except main, review, and work
+# CHECK:   clean          Remove all non-dirty worktrees except main, review and work
 # CHECK:   create         Create a new worktree
 # CHECK:   help           Show this help message
-# CHECK:   init           Initialize worktree configuration
+# CHECK:   init           Initialize worktree structure
 # CHECK:   park           Resets to default branch on the special worktrees and updates them
-# CHECK:   review         Switch to review worktree
+# CHECK:   reset          Resets worktree structure
 # CHECK:   switch         Switch between worktrees
 # CHECK:   switch main    Switch to main worktree
 # CHECK:   switch review  Switch to review worktree
