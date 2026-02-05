@@ -30,7 +30,7 @@ cool-app/cool-app+fix%2Fbranch3
 As you see there are special cases (of course there are 😅).
 
 First we have the three **parking** worktrees `main`, `work`, `review`. They are inspired by [this article](https://matklad.github.io/2024/07/25/git-worktrees.html).
-They have dedicated branches: `parking/main`, `parking/work`, `parking/review`.
+They have dedicated branches: `main` (or `master` or whatever your default branch is), `parking/work`, `parking/review`.
 
 Then there are dedicated worktree for certain branches. You don't have to create a worktree for every single one of them but you probably want to for agentic work or e.g. fuzzing.
 We have to encode the `/` symbol. This is done via `%2F`.

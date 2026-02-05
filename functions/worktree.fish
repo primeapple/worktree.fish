@@ -265,6 +265,37 @@ function _worktree_switch --argument-names location
     end
 end
 
+function _worktree_reset
+    __worktree_check_git_repo
+    or return 1
+
+    __worktree_check_in_worktree_structure
+    or return 1
+
+    set -l repo_name (__worktree_get_repo_name (pwd))
+    set -l worktrees (git worktree list | awk '{print $1}')
+    set -l worktrees_to_remove (git worktree list | awk '{print $1}' | grep -v "/$repo_name+main\$")
+
+    for worktree_path in $worktrees
+        pushd $worktree_path
+        if not __worktree_check_clean_working_tree 2>/dev/null
+            echo "Error: Cannot reset worktrees, this one is dirty: $worktree_path" >&2
+            popd
+            return 1
+        end
+        popd
+    end
+
+    _worktree_switch main
+
+    for worktree_path in $worktrees_to_remove
+        echo "Info: Removing worktree $worktree_path"
+        git worktree remove $worktree_path
+    end
+
+    git worktree move . ..
+end
+
 function _worktree_help
     echo "Usage: worktree <command>"
     echo ""
@@ -293,6 +324,8 @@ function worktree --argument-names subcmd1 subcmd2 --description "Manage git wor
             _worktree_park 0
         case switch
             _worktree_switch $subcmd2
+        case reset
+            _worktree_reset
         case '*'
             _worktree_help
     end
