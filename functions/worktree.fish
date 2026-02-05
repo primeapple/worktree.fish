@@ -246,9 +246,23 @@ function _worktree_switch --argument-names location
 
     if contains $location main review work
         cd "$(dirname (__worktree_get_current_worktree_path))/$(__worktree_get_repo_name (pwd))+$location"
+        return 0
     end
 
-    # TODO open worktrees in fzf/zf/...
+    if command --query zf
+        set dir (git worktree list | zf | awk '{print $1}')
+        if test -d "$dir"
+            cd "$dir"
+        end
+    else if command --query fzf
+        set dir (git worktree list | fzf | awk '{print $1}')
+        if test -d "$dir"
+            cd "$dir"
+        end
+    else
+        echo "Error: Can not switch interactively without zf or fzf installed" >&2
+        return 1
+    end
 end
 
 function _worktree_help
