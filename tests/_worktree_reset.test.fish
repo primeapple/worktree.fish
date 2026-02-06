@@ -23,39 +23,38 @@ touch dirty-file-main
 cd $tmpdir/repository/repository+other-branch
 
 ### TEST cannot reset if any worktrees are dirty
-worktree reset # CHECKERR: Error: Cannot reset worktrees, this one is dirty: {{.*}}/repository/repository+main
+worktree reset # CHECKERR: Error: Cannot reset worktrees, this one is dirty: {{.*}}/repository/repository+other-branch
 echo $status # CHECK: 1
-rm $tmpdir/repository/repository+main/dirty-file-main
+rm $tmpdir/repository/repository+other-branch/dirty-file-other
 
-worktree reset # CHECKERR: Error: Cannot reset worktrees, this one is dirty: {{.*}}/repository/repository+other-branch 
-# echo $status # CHECK: 1
-# rm $tmpdir/repository/repository+other-branch/dirty-file-other
+git worktree list
+# CHECK: {{.*}}repository/repository+main{{.*}}
+# CHECK: {{.*}}repository/repository+other-branch{{.*}}
+# CHECK: {{.*}}repository/repository+review{{.*}}
+# CHECK: {{.*}}repository/repository+work{{.*}}
 
-# git worktree list
-# # CHECK: {{.*}}repository/repository+main{{.*}}
-# # CHECK: {{.*}}repository/repository+other-branch{{.*}}
-# # CHECK: {{.*}}repository/repository+review{{.*}}
-# # CHECK: {{.*}}repository/repository+work{{.*}}
+### TEST should remove worktrees and move repo back
+worktree reset
+# CHECK: Info: Removing worktree {{.*}}/repository/repository+other-branch
+# CHECK: Info: Removing worktree {{.*}}/repository/repository+review
+# CHECK: Info: Removing worktree {{.*}}/repository/repository+work
+echo $status # CHECK: 0
+pwd # CHECK: {{.*}}/repository
+git worktree list # CHECK: {{.*}}/repository {{.*}} [main]
+git branch --show-current # CHECK: main
+git status --porcelain # CHECK: ?? dirty-file-main
 
-# ### TEST should remove worktrees and move repo back
-# worktree reset
-# # CHECK: Info: Removing worktree {{.*}}/repository/repository+other-branch
-# # CHECK: Info: Removing worktree {{.*}}/repository/repository+review
-# # CHECK: Info: Removing worktree {{.*}}/repository/repository+work
-# echo $status # CHECK: 0
-# pwd # CHECK: {{.*}}/repository
-# git worktree list # CHECK: {{.*}}/repository
-# git branch --show-current # CHECK: main
+rm dirty-file-main
 
-# ### TEST should clean everything up, so that init works again
-# worktree init
-# # CHECK: Git worktree setup complete!
-# # CHECK: Structure created:
-# # CHECK:   repository/
-# # CHECK:     ├── repository+main (main branch)
-# # CHECK:     ├── repository+work (parking/work branch)
-# # CHECK:     ├── repository+review (parking/review branch)
-# echo $status # CHECK: 0
+### TEST should clean everything up, so that init works again
+worktree init
+# CHECK: Git worktree setup complete!
+# CHECK: Structure created:
+# CHECK:   repository/
+# CHECK:     ├── repository+main (main branch)
+# CHECK:     ├── repository+work (parking/work branch)
+# CHECK:     ├── repository+review (parking/review branch)
+echo $status # CHECK: 0
 
 ### Teardown
 cleanup_test_repo $tmpdir

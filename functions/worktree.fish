@@ -273,10 +273,9 @@ function _worktree_reset
     or return 1
 
     set -l repo_name (__worktree_get_repo_name (pwd))
-    set -l worktrees (git worktree list | awk '{print $1}')
     set -l worktrees_to_remove (git worktree list | awk '{print $1}' | grep -v "/$repo_name+main\$")
 
-    for worktree_path in $worktrees
+    for worktree_path in $worktrees_to_remove
         pushd $worktree_path
         if not __worktree_check_clean_working_tree 2>/dev/null
             echo "Error: Cannot reset worktrees, this one is dirty: $worktree_path" >&2
@@ -293,7 +292,9 @@ function _worktree_reset
         git worktree remove $worktree_path
     end
 
-    git worktree move . ..
+    mv * .* ../
+    cd ..
+    rm -rf "$repo_name+main"
 end
 
 function _worktree_help
