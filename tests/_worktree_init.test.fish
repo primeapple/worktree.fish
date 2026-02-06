@@ -37,7 +37,7 @@ git worktree list
 # CHECK: {{.*}}/repository/repository+work{{.*}} [parking/work]
 
 ### TEST have checked out the 3 default branches in the worktrees
-git branch -a
+git branch --list
 # CHECK: * main
 # CHECK: + parking/review
 # CHECK: + parking/work

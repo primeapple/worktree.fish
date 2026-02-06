@@ -23,7 +23,6 @@ worktree create # CHECKERR: Error: You have uncommitted changes
 echo $status # CHECK: 1
 rm thing
 
-
 ### TEST create with given branch name
 worktree create new-branch
 echo $status # CHECK: 0
