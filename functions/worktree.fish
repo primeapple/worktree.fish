@@ -131,7 +131,6 @@ function _worktree_init
         git worktree add --quiet "$worktree_dir" "$branch_name"
     end
 
-    echo "Git worktree setup complete!"
     echo "Structure created:"
     echo "  $original_name/"
     echo "    ├── $new_main_name ($default_branch branch)"

@@ -48,7 +48,6 @@ rm dirty-file-main
 
 ### TEST should clean everything up, so that init works again
 worktree init
-# CHECK: Git worktree setup complete!
 # CHECK: Structure created:
 # CHECK:   repository/
 # CHECK:     ├── repository+main (main branch)

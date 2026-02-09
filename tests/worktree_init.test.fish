@@ -19,7 +19,6 @@ rm thing
 
 ### TEST basic init
 worktree init
-# CHECK: Git worktree setup complete!
 # CHECK: Structure created:
 # CHECK:   repository/
 # CHECK:     ├── repository+main (main branch)

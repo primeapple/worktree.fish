@@ -39,25 +39,68 @@ We have to encode the `/` symbol. This is done via `%2F`.
 
 Let's have a sample session!
 
+### Initializing and Switching
+
 ```sh
-# Create a git repository
-mkdir repo && cd repo && git init
+git clone git@github.com:primeapple/worktree.fish.git && cd worktree.fish
+pwd # /worktree.fish
 
-# Intitialize, this will create the parking worktrees and cd into the `work` one
 worktree init
+# Structure created:
+#   worktree.fish/
+#     ├── worktree.fish+main (main branch)
+#     ├── worktree.fish+work (parking/work branch)
+#     ├── worktree.fish+review (parking/review branch)
+pwd # /worktree.fish/worktree.fish+main
 
-# Create a new branch in a worktree, this will directly jump into there
-worktree create branch1
-
-# Switch to the work one again, this will switch the worktree 
-worktree switch work # or `worktree switch main` or `worktree switch review` or just `worktree switch`
-
-# Create a new branch in the `work` worktree
-git switch --create chore-branch2
-# Extract it into a separate worktree (will check out `parking/work` in the `work` worktree)
-worktree create
+worktree switch review
+pwd # /worktree.fish/worktree.fish+review
+worktree switch work
+pwd # /worktree.fish/worktree.fish+work
 ```
 
-There are many more commands, like `worktree clean` or `worktree park`. Run `worktree` to see help output (or take a look into the completions).
+### Creating and Cleaning
+
+```sh
+pwd # /worktree.fish/worktree.fish+work
+git switch --create feature
+touch file && git add --all && git commit --message "Added feature"
+
+worktree create
+pwd # /worktree.fish/worktree.fish+feature
+git branch --show-current # feature
+
+worktree create bugfix
+pwd # /worktree.fish/worktree.fish+bugfix
+git branch --show-current # bugfix
+
+worktree clean
+# Info: Removing worktree /worktree.fish/repository+bugfix
+# Info: Removing worktree /worktree.fish/repository+feature
+# -> It removed all non-dirty worktrees except for default ones
+pwd # /worktree.fish/worktree.fish+work
+git branch --show-current # parking/work
+```
+
+### Parking and Resetting
+
+```sh
+pwd # /worktree.fish/worktree.fish+work
+git switch --create bad-idea
+touch file && git add --all && git commit --message "Added feature"
+
+worktree park
+pwd # /worktree.fish/worktree.fish+work
+git branch --show-current # parking/work
+# -> It also did a hard reset of the parking branch to origin/main
+
+worktree reset
+# Info: Removing worktree /worktree.fish/worktree.fish+review
+# Info: Removing worktree /worktree.fish/worktree.fish+work
+# -> It removed all non-dirty worktrees except for main, which was moved to it's original location
+pwd # /worktree.fish
+```
+
+There are many more hidde features like e.g. switching between worktrees via `fzf` (if installed) Run `worktree` to see help output (or take a look into the completions).
 
 Let's have fun :)
