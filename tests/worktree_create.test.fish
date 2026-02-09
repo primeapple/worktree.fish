@@ -1,6 +1,6 @@
 # RUN: %fish %s
 
-source (dirname (status filename))/test_helpers.fish
+source (dirname (status filename))/_test_helpers.fish
 
 ### Setup
 set -l tmpdir (setup_test_repo main)
