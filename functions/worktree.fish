@@ -249,13 +249,13 @@ function _worktree_switch --argument-names location
         return 0
     end
 
-    if command --query zf
-        set dir (git worktree list | zf | awk '{print $1}')
+    if command --query fzf
+        set dir (git worktree list | fzf | awk '{print $1}')
         if test -d "$dir"
             cd "$dir"
         end
-    else if command --query fzf
-        set dir (git worktree list | fzf | awk '{print $1}')
+    else if command --query zf
+        set dir (git worktree list | zf | awk '{print $1}')
         if test -d "$dir"
             cd "$dir"
         end
