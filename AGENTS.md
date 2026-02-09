@@ -39,10 +39,10 @@ make clean
 ├── functions/
 │   └── worktree.fish          # Main implementation
 ├── tests/
-│   ├── test_helpers.fish      # Test utilities
-│   ├── _worktree.test.fish    # Basic command tests
-│   ├── _worktree_help.test.fish
-│   └── _worktree_init.test.fish
+│   ├── _test_helpers.fish      # Test utilities
+│   ├── worktree.test.fish    # Basic command tests
+│   ├── worktree_help.test.fish
+│   └── worktree_init.test.fish
 ├── Makefile                   # Build automation
 ├── littlecheck.py            # Test runner (downloaded)
 └── README.md
@@ -110,7 +110,7 @@ end
 ```fish
 # RUN: %fish %s
 
-source (dirname (status filename))/test_helpers.fish
+source (dirname (status filename))/_test_helpers.fish
 
 ### Setup
 set -l tmpdir (setup_test_repo main)
