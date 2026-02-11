@@ -79,51 +79,36 @@ function _worktree_init
     __worktree_check_git_repo
     or return 1
 
-    set -l git_root (__worktree_get_git_root (pwd))
-    cd "$git_root"
-
-    # Check for uncommitted changes
     __worktree_check_clean_working_tree
     or return 1
 
-    # Check if already in a worktree structure
     if __worktree_check_in_worktree_structure 2>/dev/null
         echo "Error: Already in a worktree structure" >&2
         return 1
     end
 
-    # Get default branch
     set -l default_branch (__worktree_get_default_branch)
     or return 1
 
-    # Check we're on default branch
     __worktree_check_on_default_branch "$default_branch"
     or return 1
 
+    set -l git_root (__worktree_get_git_root (pwd))
+
     set -l original_name (basename "$git_root")
     set -l parent_dir (dirname "$git_root")
-    set -l new_main_name "$original_name+$default_branch"
+    set -l new_main_name "$original_name+main"
 
-    # Move to parent directory
     cd "$parent_dir"
-
-    # Rename original directory to name+branch format
     mv "$original_name" "$new_main_name"
-
-    # Create new original directory
     mkdir "$original_name"
-
-    # Move renamed directory into new original directory
     mv "$new_main_name" "$original_name/"
-
-    # Change to the main worktree directory
     cd "$original_name/$new_main_name"
 
     for worktree_name in work review
         set -l branch_name "parking/$worktree_name"
         set -l worktree_dir "../$original_name+$worktree_name"
 
-        # Create branch if it doesn't exist
         if not git rev-parse --verify "$branch_name" >/dev/null 2>&1
             git branch "$branch_name"
         end
