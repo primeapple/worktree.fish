@@ -153,7 +153,7 @@ function _worktree_create --argument-names target_branch
     end
 
     cd (__worktree_get_git_root (pwd))
-    set path_to_create "../repository+$(string replace --all "/" "%2F" $target_branch)"
+    set path_to_create "../$(__worktree_get_repo_name (pwd))+$(string replace --all "/" "%2F" $target_branch)"
     git worktree add --quiet $path_to_create $target_branch
     cd $path_to_create
 end
