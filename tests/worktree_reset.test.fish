@@ -32,17 +32,21 @@ git worktree list
 # CHECK: {{.*}}repository/repository+other-branch{{.*}}
 # CHECK: {{.*}}repository/repository+review{{.*}}
 # CHECK: {{.*}}repository/repository+work{{.*}}
+git branch | grep parking | wc -l # CHECK: 2
 
 ### TEST should remove worktrees and move repo back
 worktree reset
 # CHECK: Info: Removing worktree {{.*}}/repository/repository+other-branch
 # CHECK: Info: Removing worktree {{.*}}/repository/repository+review
 # CHECK: Info: Removing worktree {{.*}}/repository/repository+work
+# CHECK: Info: Removing parking branch parking/review
+# CHECK: Info: Removing parking branch parking/work
 echo $status # CHECK: 0
 pwd # CHECK: {{.*}}/repository
 git worktree list # CHECK: {{.*}}/repository {{.*}} [main]
 git branch --show-current # CHECK: main
 git status --porcelain # CHECK: ?? dirty-file-main
+git branch | grep parking | wc -l # CHECK: 0
 
 rm dirty-file-main
 
@@ -54,6 +58,19 @@ worktree init
 # CHECK:     ├── repository+work (parking/work branch)
 # CHECK:     ├── repository+review (parking/review branch)
 echo $status # CHECK: 0
+
+### TEST should NOT delete parking branches with extra commits when resetting
+cd $tmpdir/repository/repository+work
+touch work-file.txt
+git add work-file.txt
+git commit -m "Work commit" -q
+cd $tmpdir/repository/repository+main
+worktree reset
+# CHECK: Info: Removing worktree {{.*}}/repository/repository+review
+# CHECK: Info: Removing worktree {{.*}}/repository/repository+work
+# CHECK: Info: Removing parking branch parking/review
+# CHECK: Warning: Can't remove branch parking/work, it has commits that are not on default branch
+git branch | grep parking/work # CHECK: parking/work
 
 ### Teardown
 cleanup_test_repo $tmpdir

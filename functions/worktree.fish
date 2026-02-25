@@ -276,6 +276,18 @@ function _worktree_reset
         git worktree remove $worktree_path
     end
 
+    # Delete parking branches that have no extra commits compared to default branch
+    set -l default_branch (__worktree_get_default_branch)
+    for parking_branch in parking/review parking/work
+        # Check if parking branch is ancestor of or equal to default branch
+        if git merge-base --is-ancestor $parking_branch $default_branch
+            echo "Info: Removing parking branch $parking_branch"
+            git branch -d $parking_branch >/dev/null
+        else
+            echo "Warning: Can't remove branch $parking_branch, it has commits that are not on default branch"
+        end
+    end
+
     mv * .* ../
     cd ..
     rm -rf "$repo_name+main"
