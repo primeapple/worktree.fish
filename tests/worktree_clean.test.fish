@@ -33,7 +33,7 @@ git worktree list
 cd $tmpdir/repository/repository+other%2Fclean
 worktree clean
 # CHECK: Info: Removing worktree {{.*}}/repository/repository+other%2Fclean
-# CHECKERR: Warning: Can not remove dirty worktree {{.*}}/repository/repository+other-dirty
+# CHECKERR: Error: Can not remove dirty worktree {{.*}}/repository/repository+other-dirty
 
 pwd # CHECK: {{.*}}/repository/repository+work
 git worktree list

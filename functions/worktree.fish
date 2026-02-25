@@ -21,7 +21,8 @@ end
 
 function __worktree_get_git_root --argument-names path
     if not test -n "$path"
-        exit 2
+        echo "Assert: __worktree_get_git_root called without path argument" >&2
+        return 2
     end
     pushd "$path"
     git rev-parse --show-toplevel
@@ -61,7 +62,8 @@ function __worktree_check_branch_ancestor_of_default --argument-names branch
     or return 1
 
     if not git rev-parse --verify $branch >/dev/null 2>&1
-        exit 2
+        echo "Assert: __worktree_check_branch_ancestor_of_default called with non-existent branch: $branch" >&2
+        return 2
     end
     if git merge-base --is-ancestor $branch $default_branch
         return 0
@@ -77,14 +79,16 @@ end
 
 function __worktree_get_repo_name --argument-names path
     if not test -n "$path"
-        exit 2
+        echo "Assert: __worktree_get_repo_name called without path argument" >&2
+        return 2
     end
     basename (dirname (__worktree_get_git_root $path))
 end
 
 function __worktree_get_worktree_name_suffix --argument-names path
     if not test -n "$path"
-        exit 2
+        echo "Assert: __worktree_get_worktree_name_suffix called without path argument" >&2
+        return 2
     end
     set repo_name (__worktree_get_repo_name $path)
     string replace "$repo_name+" "" (basename $path)
@@ -192,14 +196,12 @@ function _worktree_park --argument-names reset_to_origin
     set -l default_branch (__worktree_get_default_branch)
     set -l current_branch (git branch --show-current)
 
-    # Check if already on the parking branch (nothing to do)
     if test "$worktree_suffix" = main
         if test "$current_branch" = "$default_branch"
-            echo "Warning: Already on default branch, nothing to park" >&2
+            echo "Error: Already on default branch, nothing to park" >&2
             return 1
         end
     else
-        # For work and review worktrees, check if parking branch has extra commits
         __worktree_check_branch_ancestor_of_default "parking/$worktree_suffix"
         or return 1
     end
@@ -222,7 +224,7 @@ function _worktree_park --argument-names reset_to_origin
         git reset --hard origin/$default_branch
         echo "Info: Reset to origin/$default_branch"
     else
-        echo "Warning: No remote found, not resetting to latest remote default branch" >&2
+        echo "Info: No remote found, not resetting to latest remote default branch"
     end
 end
 
@@ -245,7 +247,7 @@ function _worktree_clean
             echo "Info: Removing worktree $worktree_path"
             git worktree remove "$worktree_path"
         else
-            echo "Warning: Can not remove dirty worktree $worktree_path" >&2
+            echo "Error: Can not remove dirty worktree $worktree_path" >&2
         end
     end
 end
@@ -310,7 +312,7 @@ function _worktree_reset
             echo "Info: Removing parking branch $parking_branch"
             git branch -d $parking_branch >/dev/null
         else
-            echo "Warning: Can't remove branch $parking_branch, it has commits that are not on default branch"
+            echo "Info: Keeping branch $parking_branch, it has commits that are not on default branch"
         end
     end
 

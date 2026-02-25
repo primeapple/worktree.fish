@@ -69,7 +69,7 @@ worktree reset
 # CHECK: Info: Removing worktree {{.*}}/repository/repository+review
 # CHECK: Info: Removing worktree {{.*}}/repository/repository+work
 # CHECK: Info: Removing parking branch parking/review
-# CHECK: Warning: Can't remove branch parking/work, it has commits that are not on default branch
+# CHECK: Info: Keeping branch parking/work, it has commits that are not on default branch
 git branch | grep parking/work # CHECK: parking/work
 
 ### Teardown

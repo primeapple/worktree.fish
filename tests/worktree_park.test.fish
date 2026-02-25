@@ -28,24 +28,24 @@ worktree park # CHECKERR: Error: Can only park the default worktrees (main revie
 
 ### TEST cannot park default worktree when already on default branch
 cd ../repository+main
-worktree park # CHECKERR: Warning: Already on default branch, nothing to park
+worktree park # CHECKERR: Error: Already on default branch, nothing to park
 
 ### TEST park should checkout default branch
 git switch --create test-branch 2>/dev/null
 git branch --show-current # CHECK: test-branch
-worktree park # CHECKERR: Warning: No remote found, not resetting to latest remote default branch
+worktree park # CHECK: Info: No remote found, not resetting to latest remote default branch
 git branch --show-current # CHECK: main
 
 cd ../repository+work
 git switch test-branch 2>/dev/null
 git branch --show-current # CHECK: test-branch
-worktree park # CHECKERR: Warning: No remote found, not resetting to latest remote default branch
+worktree park # CHECK: Info: No remote found, not resetting to latest remote default branch
 git branch --show-current # CHECK: parking/work
 
 cd ../repository+review
 git switch test-branch 2>/dev/null
 git branch --show-current # CHECK: test-branch
-worktree park # CHECKERR: Warning: No remote found, not resetting to latest remote default branch
+worktree park # CHECK: Info: No remote found, not resetting to latest remote default branch
 git branch --show-current # CHECK: parking/review
 
 ### Teardown
