@@ -17,11 +17,20 @@ worktree create # CHECKERR: Error: No worktree structure found
 worktree init >/dev/null
 pwd # CHECK: {{.*}}/repository/repository+main
 
-### TEST cannot create if working directory / staging area is dirty
-touch thing
-worktree create # CHECKERR: Error: You have uncommitted changes
-echo $status # CHECK: 1
-rm thing
+### TEST can create worktree and move dirty changes to new worktree
+touch untracked-file
+echo modified >test.txt
+git add test.txt
+worktree create dirty-branch
+echo $status # CHECK: 0
+pwd # CHECK: {{.*}}/repository/repository+dirty-branch
+git branch --show-current # CHECK: dirty-branch
+git status --porcelain
+# CHECK: M  test.txt
+# CHECK: ?? untracked-file
+
+worktree switch main
+git status --porcelain | wc -l # CHECK: 0
 
 ### TEST create with given branch name
 worktree create new-branch
@@ -68,9 +77,10 @@ worktree switch work
 worktree create # CHECKERR: Error: Can not create worktree from parking branches (main parking/review parking/work)
 echo $status # CHECK: 1
 
-### TEST have created 6 worktrees in expected locations with expected branches
+### TEST have created 7 worktrees in expected locations with expected branches
 git worktree list
 # CHECK: {{.*}}/repository/repository+main{{.*}} [main]
+# CHECK: {{.*}}/repository/repository+dirty-branch{{.*}} [dirty-branch]
 # CHECK: {{.*}}/repository/repository+fix%2Fslash%2Fbranch{{.*}} [fix/slash/branch]
 # CHECK: {{.*}}/repository/repository+new-branch{{.*}} [new-branch]
 # CHECK: {{.*}}/repository/repository+plus+branch+work{{.*}} [plus+branch+work]

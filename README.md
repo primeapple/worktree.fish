@@ -104,3 +104,7 @@ pwd # /worktree.fish
 There are many more hidde features like e.g. switching between worktrees via `fzf` (if installed) Run `worktree` to see help output (or take a look into the completions).
 
 Let's have fun :)
+
+## Contribution
+
+Run the tests/linter/formatter via `make all`.

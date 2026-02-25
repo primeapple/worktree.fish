@@ -149,9 +149,6 @@ function _worktree_create --argument-names target_branch
     __worktree_check_in_worktree_structure
     or return 1
 
-    __worktree_check_clean_working_tree
-    or return 1
-
     if test -n "$target_branch"
         if not git rev-parse --verify "$target_branch" >/dev/null 2>&1
             git branch $target_branch
@@ -171,10 +168,19 @@ function _worktree_create --argument-names target_branch
         _worktree_park 1
     end
 
+    set -l has_changes (test -n "$(git status --porcelain)" && echo 1 || echo 0)
+    if test "$has_changes" -eq 1
+        git stash push --include-untracked --quiet
+    end
+
     cd (__worktree_get_git_root (pwd))
     set path_to_create "../$(__worktree_get_repo_name (pwd))+$(string replace --all "/" "%2F" $target_branch)"
     git worktree add --quiet $path_to_create $target_branch
     cd $path_to_create
+
+    if test "$has_changes" -eq 1
+        git stash pop --index --quiet
+    end
 end
 
 function _worktree_park --argument-names reset_to_origin
