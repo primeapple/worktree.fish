@@ -56,6 +56,21 @@ function __worktree_check_in_worktree_structure
     return 1
 end
 
+function __worktree_check_branch_ancestor_of_default --argument-names branch
+    set -l default_branch (__worktree_get_default_branch)
+    or return 1
+
+    if not git rev-parse --verify $branch >/dev/null 2>&1
+        exit 2
+    end
+    if git merge-base --is-ancestor $branch $default_branch
+        return 0
+    end
+
+    echo "Error: Can't reset branch $branch, it has commits that are not on default branch" >&2
+    return 1
+end
+
 function __worktree_get_current_worktree_path
     git rev-parse --show-toplevel | git worktree list | grep (__worktree_get_git_root (pwd)) | awk '{print $1}'
 end
@@ -175,9 +190,23 @@ function _worktree_park --argument-names reset_to_origin
     end
 
     set -l default_branch (__worktree_get_default_branch)
+    set -l current_branch (git branch --show-current)
+
+    # Check if already on the parking branch (nothing to do)
+    if test "$worktree_suffix" = main
+        if test "$current_branch" = "$default_branch"
+            echo "Warning: Already on default branch, nothing to park" >&2
+            return 1
+        end
+    else
+        # For work and review worktrees, check if parking branch has extra commits
+        __worktree_check_branch_ancestor_of_default "parking/$worktree_suffix"
+        or return 1
+    end
+
     switch $worktree_suffix
         case main
-            git switch (__worktree_get_default_branch) 2>/dev/null
+            git switch $default_branch 2>/dev/null
         case review
             git switch parking/$worktree_suffix 2>/dev/null
         case work
@@ -276,11 +305,8 @@ function _worktree_reset
         git worktree remove $worktree_path
     end
 
-    # Delete parking branches that have no extra commits compared to default branch
-    set -l default_branch (__worktree_get_default_branch)
     for parking_branch in parking/review parking/work
-        # Check if parking branch is ancestor of or equal to default branch
-        if git merge-base --is-ancestor $parking_branch $default_branch
+        if __worktree_check_branch_ancestor_of_default $parking_branch 2>/dev/null
             echo "Info: Removing parking branch $parking_branch"
             git branch -d $parking_branch >/dev/null
         else
