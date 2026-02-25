@@ -24,5 +24,11 @@ pwd # CHECK: {{.*}}/repository/repository+main
 worktree switch review
 pwd # CHECK: {{.*}}/repository/repository+review
 
+### TEST can switch with dirty staging area
+touch new_file staged_file
+git add staged_file
+worktree switch work
+pwd # CHECK: {{.*}}/repository/repository+work
+
 ### Teardown
 cleanup_test_repo $tmpdir
