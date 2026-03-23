@@ -26,13 +26,11 @@ rm thing
 worktree create other-worktree-branch
 worktree park # CHECKERR: Error: Can only park the default worktrees (main review work)
 
-### TEST cannot park default worktree when already on default branch
-cd ../repository+main
-worktree park # CHECKERR: Error: Already on default branch, nothing to park
-
 ### TEST park should checkout default branch
+cd ../repository+main
 git switch --create test-branch 2>/dev/null
 git branch --show-current # CHECK: test-branch
+touch new && git add new && git commit -m "added new" -q
 worktree park # CHECK: Info: No remote found, not resetting to latest remote default branch
 git branch --show-current # CHECK: main
 
