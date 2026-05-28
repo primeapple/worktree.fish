@@ -18,12 +18,12 @@ The naming schema for each worktree is `REPONAME+BRANCHNAME`.
 This means that a usual git directory for the repo `cool-app` becomes the following folder structure:
 
 ```
-cool-app/cool-app+main
-cool-app/cool-app+work
-cool-app/cool-app+review
-cool-app/cool-app+branch1
-cool-app/cool-app+chore-branch2
-cool-app/cool-app+fix%2Fbranch3
+  cool-app/cool-app+main
+  cool-app/cool-app+work
+  cool-app/cool-app+review
+  cool-app/cool-app+branch1
+  cool-app/cool-app+chore-branch2
+  cool-app/cool-app+fix~branch3
 ...
 ```
 
@@ -33,7 +33,7 @@ First we have the three **parking** worktrees `main`, `work`, `review`. They are
 They have dedicated branches: `main` (or `master` or whatever your default branch is), `parking/work`, `parking/review`.
 
 Then there are dedicated worktree for certain branches. You don't have to create a worktree for every single one of them but you probably want to for agentic work or e.g. fuzzing.
-We have to encode the `/` symbol. This is done via `%2F`.
+We have to encode the `/` symbol. This is done via `~` (tilde), since `~` is not a valid git branch name character.
 
 ## Usage
 

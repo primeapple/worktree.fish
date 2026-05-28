@@ -24,15 +24,15 @@ touch dirty-file
 ### Verify worktrees exist before clean
 git worktree list
 # CHECK: {{.*}}repository/repository+main{{.*}}
-# CHECK: {{.*}}repository/repository+other%2Fclean{{.*}}
 # CHECK: {{.*}}repository/repository+other-dirty{{.*}}
+# CHECK: {{.*}}repository/repository+other~clean{{.*}}
 # CHECK: {{.*}}repository/repository+review{{.*}}
 # CHECK: {{.*}}repository/repository+work{{.*}}
 
 ### TEST clean command removes only clean worktrees
-cd $tmpdir/repository/repository+other%2Fclean
+cd $tmpdir/repository/repository+other~clean
 worktree clean
-# CHECK: Info: Removing worktree {{.*}}/repository/repository+other%2Fclean
+# CHECK: Info: Removing worktree {{.*}}/repository/repository+other~clean
 # CHECKERR: Error: Can not remove dirty worktree {{.*}}/repository/repository+other-dirty
 
 pwd # CHECK: {{.*}}/repository/repository+work

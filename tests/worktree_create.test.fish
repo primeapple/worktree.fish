@@ -51,7 +51,7 @@ git branch --show-current # CHECK: very-new-branch
 ### TEST create worktree with slash
 worktree create fix/slash/branch
 echo $status # CHECK: 0
-pwd # CHECK: {{.*}}/repository/repository+fix%2Fslash%2Fbranch
+pwd # CHECK: {{.*}}/repository/repository+fix~slash~branch
 git branch --show-current # CHECK: fix/slash/branch
 
 ### TEST create worktree with plus
@@ -81,7 +81,7 @@ echo $status # CHECK: 1
 git worktree list
 # CHECK: {{.*}}/repository/repository+main{{.*}} [main]
 # CHECK: {{.*}}/repository/repository+dirty-branch{{.*}} [dirty-branch]
-# CHECK: {{.*}}/repository/repository+fix%2Fslash%2Fbranch{{.*}} [fix/slash/branch]
+# CHECK: {{.*}}/repository/repository+fix~slash~branch{{.*}} [fix/slash/branch]
 # CHECK: {{.*}}/repository/repository+new-branch{{.*}} [new-branch]
 # CHECK: {{.*}}/repository/repository+plus+branch+work{{.*}} [plus+branch+work]
 # CHECK: {{.*}}/repository/repository+review{{.*}} [parking/review]
